@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage("Git Clone") {
+            steps {
+                script {
+                    git credentialsId: 'GIT_HUB_CREDENTIALS', url: 'https://github.com/Rajeshmahadev/react-calculator.github.io.git'
+                }
+            }
+        }
+    
+        stage("Docker build") {
+            steps {
+                sh 'docker version'
+                sh 'docker build -t simple-react-calculator .'
+                sh 'docker image list'
+                sh 'docker tag simple-react-calculator rajesh072/simple-react-calculator:simple-react-calculator-demo'
+            }
+        } 
+    
+        stage("Docker Login") {
+            steps {
+                withCredentials([string(credentialsId: 'DOCKER_HUB_PASSWORD', variable: 'PASSWORD')]) {
+                    sh 'docker login -u userid -p $PASSWORD'
+                }
+            }
+        }
+    
+        stage("Push Image to Docker Hub") {
+            steps {
+                sh 'docker push userid/simple-react-calculator:simple-react-calculator-demo'
+            }
+        }
+    
+        stage('Deploying App to Kubernetes') {
+            steps {
+                script {
+                    kubernetesDeploy(configs: "deploy_service.yaml", kubeconfigId: "kubernetes")
+                }
+            }
+        }
+    }
+}
