@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test-deploy
+  name: SCM-deploy
 spec:
   replicas: 2
   selector:
@@ -22,7 +22,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: test-service
+  name: SCM-service
 spec:
   selector:
     app: my-deploy
